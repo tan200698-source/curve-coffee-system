@@ -26,6 +26,36 @@ const getAllProducts = async (req, res, next) => {
     }
 };
 
+//api ProductVariants
+const getProductVariants = async (req, res, next) => {
+    try {
+        const { id } = req.params;
+
+        const result = await pool.query(
+            `
+            SELECT
+            id,
+            name,
+            price,
+            is_available,
+            display_order,
+            image_url
+            FROM product_variants
+            WHERE product_id = $1
+            ORDER BY display_order ASC;
+            `,
+            [id]
+        );
+        res.json(result.rows);
+    } catch (error) {
+        next(error);
+    }
+};
+
+
+
+
 module.exports = {
     getAllProducts,
+    getProductVariants,
 };
