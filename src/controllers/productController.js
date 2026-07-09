@@ -2,7 +2,12 @@ const pool = require("../db");
 
 const getAllProducts = async (req, res, next) => {
     try {
-        const { search, category } = req.query;
+        
+        const { search, category, page, limit } = req.query;
+
+        const currentPage = Number(page) || 1;
+        const perPage = Number(limit) || 10;
+        const offset = (currentPage - 1) * perPage;
 
         let query = `
         SELECT
@@ -39,9 +44,11 @@ const getAllProducts = async (req, res, next) => {
         }
 
         query += `
-        ORDER BY p.display_order ASC;
+        ORDER BY p.display_order ASC
+        LIMIT $${values.length + 1}
+        OFFSET $${values.length + 2};
         `;
-    
+    values.push(perPage, offset);
 
 const result = await pool.query(query, values);
 
