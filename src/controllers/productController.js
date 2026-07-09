@@ -41,16 +41,52 @@ const getAllProducts = async (req, res, next) => {
         query += `
         ORDER BY p.display_order ASC;
         `;
+    
 
-        const result = await pool.query(query, values);
+const result = await pool.query(query, values);
 
-        res.json(result.rows);
+const products = result.rows;
 
-        
-    } catch (error) {
+const productIds = products.map((product) => product.id);
+
+if (productIds.length === 0) {
+    return res.json([]);
+}
+const variantsResult = await pool.query(
+    `
+    SELECT
+    id,
+    product_id,
+    name,
+    price,
+    is_available,
+    display_order,
+    image_url
+    FROM product_variants
+    WHERE product_id = ANY($1)
+    ORDER BY display_order ASC;
+    `,
+    [productIds]
+);
+
+const productsWithVariants = products.map((product) => {
+    const variants = variantsResult.rows.filter(
+        (variant) => variant.product_id === product.id
+    );
+
+    return {
+        ...product,
+        variants,
+    };
+});
+
+res.json(productsWithVariants);
+    } catch (erroe) {
         next(error);
     }
+
 };
+   
 
 
 
