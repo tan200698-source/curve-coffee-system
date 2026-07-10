@@ -2,6 +2,9 @@ const express = require("express");
 const pool = require("./db");
 const productRoutes = require("./routes/productRoutes");
 const categoryRoutes = require("./routes/categoryRoutes");
+const storeRoutes = require("./routes/storeRoutes");
+
+
 
 const app = express();
 const PORT = 3000;
@@ -11,7 +14,7 @@ app.use(express.json());
 
 app.use("/products", productRoutes);
 app.use("/categories", categoryRoutes);
-
+app.use("/store", storeRoutes);
 
 app.get("/", (req, res) => {
     res.send("curve-coffee-system");
