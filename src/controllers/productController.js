@@ -3,11 +3,22 @@ const pool = require("../db");
 const getAllProducts = async (req, res, next) => {
     try {
         
-        const { search, category, page, limit } = req.query;
+        const { search, category, page, limit, sort } = req.query;
 
         const currentPage = Number(page) || 1;
         const perPage = Number(limit) || 10;
         const offset = (currentPage - 1) * perPage;
+
+        let orderBy = "p.display_ordey ASC";
+        
+        if (sort === "price") {
+            orderBy = "min_price ASC";
+
+        }
+
+        if (sort === "-price") {
+            orderBy = "min_price DESC";
+        }
 
         let query = `
         SELECT
@@ -20,7 +31,16 @@ const getAllProducts = async (req, res, next) => {
         p.available_from,
         p.available_until,
         p.display_order,
+
+        (
+        SELECT MIN(price)
+        FROM product_variants
+        WHERE product_variants.product_id = p.id
+        ) AS min_price,
+
+
         c.name AS category
+
         FROM products p
         JOIN categories c
         ON p.category_id = c.id
@@ -44,7 +64,7 @@ const getAllProducts = async (req, res, next) => {
         }
 
         query += `
-        ORDER BY p.display_order ASC
+        ORDER BY ${orderBy}
         LIMIT $${values.length + 1}
         OFFSET $${values.length + 2};
         `;
