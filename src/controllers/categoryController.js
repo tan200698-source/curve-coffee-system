@@ -28,7 +28,21 @@ const getCategoryAvailability = async (req, res, next) => {
                 c.name AS category,
                 ca.available_from,
                 ca.available_until,
-                ca.is_enabled
+                ca.is_enabled,
+
+                CASE
+                    WHEN ca.is_enabled = false THEN false
+
+                    WHEN (CURRENT_TIMESTAMP AT TIME ZONE 'Asia/Bangkok')::time
+                        BETWEEN ca.available_from
+                         AND ca.available_until
+                    THEN true
+
+                    ELSE false
+
+                END AS is_currently_available
+
+                
             FROM category_availability ca
             JOIN categories c
                 ON ca.category_id = c.id
