@@ -1,5 +1,7 @@
 const express = require("express");
 
+const validateProductQuery = require("../middleware/validateProductQuery");
+
 const{
     getAllProducts,
     getProductVariants,
@@ -8,7 +10,7 @@ const{
 
 const router = express.Router();
 
-router.get("/", getAllProducts);
+router.get("/", validateProductQuery, getAllProducts);
 
 router.get("/:id", getProductById);
 
