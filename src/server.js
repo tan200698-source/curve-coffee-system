@@ -1,4 +1,7 @@
 const express = require("express");
+const cors = require("cors");
+
+
 const pool = require("./db");
 const productRoutes = require("./routes/productRoutes");
 const categoryRoutes = require("./routes/categoryRoutes");
@@ -8,10 +11,17 @@ const errorHandler = require("./middleware/errorHandler");
 
 
 
+
 const app = express();
 const PORT = 3000;
 
 app.use(express.json());
+
+app.use(
+    cors({
+        origin: "http://localhost:5173",
+    })
+);
 
 
 app.use("/products", productRoutes);
