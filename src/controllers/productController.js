@@ -9,7 +9,7 @@ const getAllProducts = async (req, res, next) => {
         const perPage = Number(limit) || 10;
         const offset = (currentPage - 1) * perPage;
 
-        let orderBy = "p.display_ordey ASC";
+        let orderBy = "p.display_order ASC";
         
         if (sort === "price") {
             orderBy = "min_price ASC";
@@ -48,18 +48,36 @@ const getAllProducts = async (req, res, next) => {
 
         const values = [];
 
+        let countQuery = `
+        SELECT COUNT(*)::INTEGER AS total
+        FROM products p
+        JOIN categories c
+            ON p.category_id = c.id
+        `;
+
+        const countValues = [];
+
         if (search) {
-            values.push(`%${search}%`);
+            const searchValue = `%${search}%`;
+
+            values.push(searchValue);
+            countValues.push(searchValue);
+
             query += ` WHERE p.name ILIKE $${values.length}`;
+            countQuery += ` WHERE p.name ILIKE $${countValues.length}`;
         }
 
+        
         if (category) {
             values.push(category);
+            countValues.push(category);
 
             if (search) {
                 query += ` AND c.name = $${values.length}`;
+                countQuery += ` AND c.name = $${countValues.length}`;
             } else {
                 query += ` WHERE c.name = $${values.length}`;
+                countQuery += ` WHERE c.name = $${countValues.length}`;
             }
         }
 
@@ -70,15 +88,31 @@ const getAllProducts = async (req, res, next) => {
         `;
     values.push(perPage, offset);
 
+const countResult = await pool.query(countQuery, countValues);
+
+const totalItems = countResult.rows[0].total;
+const totalPages = Math.ceil(totalItems / perPage);
+
 const result = await pool.query(query, values);
 
 const products = result.rows;
 
 const productIds = products.map((product) => product.id);
 
+
 if (productIds.length === 0) {
-    return res.json([]);
+    return res.json({
+        pagination: {
+            current_page: currentPage,
+            per_page: perPage,
+            total_items: totalItems,
+            total_pages: totalPages,
+        },
+        products: [],
+    });
 }
+
+
 const variantsResult = await pool.query(
     `
     SELECT
@@ -107,8 +141,17 @@ const productsWithVariants = products.map((product) => {
     };
 });
 
-res.json(productsWithVariants);
-    } catch (erroe) {
+res.json({
+    pagination: {
+        current_page: currentPage,
+        per_page: perPage,
+        total_items: totalItems,
+        total_pages: totalPages,
+    },
+    products: productsWithVariants,
+});
+
+    } catch (error) {
         next(error);
     }
 
