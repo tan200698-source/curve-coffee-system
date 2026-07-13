@@ -1,11 +1,18 @@
 import { useEffect, useState } from "react";
 import api from "../services/api";
 
+
+import StoreHeader from "../components/StoreHeader";
+import CategoryList from "../components/CategoryList";
+import ProductCard from "../components/ProductCard";
+
+
 function HomePage() {
     const [store, setStore] = useState(null);
     const [categories, setCategories] = useState([]);
     const [products, setProducts] = useState([]);
     const [error, setError] = useState("");
+    const [selectedCategory, setSelectedCategory] = useState("All");
 
     useEffect(() => {
         const fetchHomeData = async () => {
@@ -40,46 +47,39 @@ function HomePage() {
         return <h1>Loading...</h1>;
     }
 
+    const filteredProducts =
+    selectedCategory === "All"
+        ? products
+        : products.filter(
+              (product) => product.category === selectedCategory
+          );
+
     return (
-        <main>
-            <h1>{store.store_name}</h1>
-            <p>{store.address}</p>
+    <main>
+        <StoreHeader store={store} />
 
-            <p>
-                {store.opening_time} - {store.closing_time}
-            </p>
+        <CategoryList
+             categories={categories}
+             selectedCategory={selectedCategory}
+             onSelectCategory={setSelectedCategory}
+        />
 
-            <h2>Menu Categories</h2>
-
-            <ul>
-                {categories.map((category) => (
-                    <li key={category.id}>{category.name}</li>
-                ))}
-            </ul>
-
+        <section>
             <h2>Our Menu</h2>
 
             <div>
-                {products.map((product) => (
-                    <article key={product.id}>
-                        <h3>{product.name}</h3>
-
-                        <p>{product.category}</p>
-
-                        <p>Starting from ฿{product.min_price}</p>
-
-                        <ul>
-                            {product.variants.map((variant) => (
-                                <li key={variant.id}>
-                                    {variant.name} — ฿{variant.price}
-                                </li>
-                            ))}
-                        </ul>
-                    </article>
+                {filteredProducts.map((product) => (
+                    <ProductCard
+                        key={product.id}
+                        product={product}
+                    />
                 ))}
             </div>
-        </main>
-    );
+        </section>
+    </main>
+);
+
+           
 }
 
 export default HomePage;
