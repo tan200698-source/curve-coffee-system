@@ -38,8 +38,15 @@ function HomePage() {
                 ] = await Promise.all([
                     api.get("/store"),
                     api.get("/categories"),
-                    api.get(`/products?page=1&limit=100&search=${debouncedSearch}`)
-                ]);
+                    api.get(
+                        `/products?page=1&limit=100&search=${debouncedSearch}&category=${
+                            selectedCategory === "All"
+                                ? ""
+                                : selectedCategory
+                        }`
+                    ),
+        ]);
+                
 
                 setStore(storeResponse.data);
                 setCategories(categoriesResponse.data);
@@ -51,7 +58,7 @@ function HomePage() {
         };
 
         fetchHomeData();
-    }, [debouncedSearch]);
+    }, [debouncedSearch, selectedCategory]);
 
 
 
@@ -63,14 +70,6 @@ function HomePage() {
     if (!store) {
         return <h1>Loading...</h1>;
     }
-
-    const filteredProducts =
-    selectedCategory === "All"
-        ? products
-        : products.filter(
-              (product) => product.category === selectedCategory
-          );
-
     return (
 
         
@@ -95,7 +94,7 @@ function HomePage() {
             <h2>Our Menu</h2>
 
             <div>
-                {filteredProducts.map((product) => (
+                {products.map((product) => (
                     <ProductCard
                         key={product.id}
                         product={product}
