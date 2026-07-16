@@ -15,6 +15,7 @@ function HomePage() {
     const [selectedCategory, setSelectedCategory] = useState("All");
     const [search, setSearch] = useState("");
     const [debouncedSearch, setDebouncedSearch] = useState("");
+    const [isLoadingProducts, setIsLoadingProducts] = useState(false);
 
     useEffect(() => {
         const timer = setTimeout(() => {
@@ -30,6 +31,7 @@ function HomePage() {
 
     useEffect(() => {
         const fetchHomeData = async () => {
+            setIsLoadingProducts(true);
             try {
                 const [
                     storeResponse,
@@ -54,6 +56,8 @@ function HomePage() {
             } catch (error) {
                 console.error(error);
                 setError("Unable to load store information");
+            } finally {
+                setIsLoadingProducts(false);
             }
         };
 
@@ -92,20 +96,24 @@ function HomePage() {
 
         <section>
             <h2>Our Menu</h2>
-
-            <div>
-                {products.map((product) => (
-                    <ProductCard
-                        key={product.id}
-                        product={product}
-                    />
-                ))}
-            </div>
+            {isLoadingProducts ? (
+                <p>Loading menu...</p>
+            ) : products.length === 0 ? (
+                <p>No menu items found.</p>
+            ) : (
+                <div>
+                    {products.map((product) => (
+                        <ProductCard
+                            key={product.id}
+                            product={product}
+                        />
+                    ))}
+                </div>
+            )}
         </section>
     </main>
 );
 
-           
 }
 
 export default HomePage;
