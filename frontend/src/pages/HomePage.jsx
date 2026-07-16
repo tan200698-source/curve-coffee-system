@@ -13,6 +13,20 @@ function HomePage() {
     const [products, setProducts] = useState([]);
     const [error, setError] = useState("");
     const [selectedCategory, setSelectedCategory] = useState("All");
+    const [search, setSearch] = useState("");
+    const [debouncedSearch, setDebouncedSearch] = useState("");
+
+    useEffect(() => {
+        const timer = setTimeout(() => {
+            setDebouncedSearch(search);
+        }, 500);
+
+        return () => {
+            clearTimeout(timer);
+        };
+    }, [search]);
+
+
 
     useEffect(() => {
         const fetchHomeData = async () => {
@@ -24,7 +38,7 @@ function HomePage() {
                 ] = await Promise.all([
                     api.get("/store"),
                     api.get("/categories"),
-                    api.get("/products?page=1&limit=100"),
+                    api.get(`/products?page=1&limit=100&search=${debouncedSearch}`)
                 ]);
 
                 setStore(storeResponse.data);
@@ -37,7 +51,10 @@ function HomePage() {
         };
 
         fetchHomeData();
-    }, []);
+    }, [debouncedSearch]);
+
+
+
 
     if (error) {
         return <h1>{error}</h1>;
@@ -55,10 +72,20 @@ function HomePage() {
           );
 
     return (
+
+        
     <main>
         <StoreHeader store={store} />
 
+        <input
+            type="text"
+            placeholder="Search menu..."
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            />
+
         <CategoryList
+        
              categories={categories}
              selectedCategory={selectedCategory}
              onSelectCategory={setSelectedCategory}
