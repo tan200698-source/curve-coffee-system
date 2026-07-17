@@ -16,6 +16,7 @@ function HomePage() {
     const [search, setSearch] = useState("");
     const [debouncedSearch, setDebouncedSearch] = useState("");
     const [isLoadingProducts, setIsLoadingProducts] = useState(false);
+    const [sort, setSort] = useState("");
 
     useEffect(() => {
         const timer = setTimeout(() => {
@@ -28,41 +29,88 @@ function HomePage() {
     }, [search]);
 
 
-
     useEffect(() => {
-        const fetchHomeData = async () => {
-            setIsLoadingProducts(true);
-            try {
-                const [
-                    storeResponse,
-                    categoriesResponse,
-                    productsResponse,
-                ] = await Promise.all([
+    const fetchStoreData = async () => {
+        try {
+            const [storeResponse, categoriesResponse] =
+                await Promise.all([
                     api.get("/store"),
                     api.get("/categories"),
-                    api.get(
-                        `/products?page=1&limit=100&search=${debouncedSearch}&category=${
+                ]);
+
+            setStore(storeResponse.data);
+            setCategories(categoriesResponse.data);
+        } catch (error) {
+            console.error("Store data error:", error);
+            console.error(
+                "Backend response:",
+                error.response?.data
+            );
+
+            setError("Unable to load store data");
+        }
+    };
+
+    fetchStoreData();
+}, []);
+
+useEffect(() => {
+    const fetchProducts = async () => {
+        setIsLoadingProducts(true);
+
+        try {
+            const productsResponse = await api.get(
+                "/products",
+                {
+                    params: {
+                        page: 1,
+                        limit: 100,
+                        search:
+                            debouncedSearch ||
+                            undefined,
+                        category:
                             selectedCategory === "All"
-                                ? ""
-                                : selectedCategory
-                        }`
-                    ),
-        ]);
-                
+                                ? undefined
+                                : selectedCategory,
+                        sort: sort || undefined,
+                    },
+                }
+            );
 
-                setStore(storeResponse.data);
-                setCategories(categoriesResponse.data);
-                setProducts(productsResponse.data.products);
-            } catch (error) {
-                console.error(error);
-                setError("Unable to load store information");
-            } finally {
-                setIsLoadingProducts(false);
-            }
-        };
+            console.log(
+                "Products:",
+                productsResponse.data
+            );
 
-        fetchHomeData();
-    }, [debouncedSearch, selectedCategory]);
+            setProducts(
+                productsResponse.data.products
+            );
+        } catch (error) {
+            console.error(
+                "Products API error:",
+                error
+            );
+
+            console.error(
+                "Backend response:",
+                error.response?.data
+            );
+
+            setProducts([]);
+        } finally {
+            setIsLoadingProducts(false);
+        }
+    };
+
+    fetchProducts();
+}, [debouncedSearch, selectedCategory, sort]);
+
+
+
+
+
+    
+    
 
 
 
@@ -86,6 +134,18 @@ function HomePage() {
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             />
+
+
+        <select
+            value={sort}
+            onChange={(e) => setSort(e.target.value)}
+        >
+            <option value="">Default order</option>
+            <option value="price">Price: Low to High</option>
+            <option value="-price">Price: High to Low</option>
+        </select>
+
+            
 
         <CategoryList
         
