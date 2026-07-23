@@ -1,0 +1,14 @@
+.filters {
+    margin: 30px 0;
+}
+
+.filters-controls {
+    display: flex;
+    gap: 12px;
+}
+
+.filters input,
+.filters select {
+    padding: 10px;
+    font-size: 16px;
+}

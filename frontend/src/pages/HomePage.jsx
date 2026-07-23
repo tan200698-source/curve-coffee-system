@@ -5,6 +5,7 @@ import api from "../services/api";
 import StoreHeader from "../components/StoreHeader";
 import CategoryList from "../components/CategoryList";
 import ProductCard from "../components/ProductCard";
+import ProductFilters from "../components/ProductFilters";
 
 
 function HomePage() {
@@ -128,23 +129,12 @@ useEffect(() => {
     <main>
         <StoreHeader store={store} />
 
-        <input
-            type="text"
-            placeholder="Search menu..."
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-            />
-
-
-        <select
-            value={sort}
-            onChange={(e) => setSort(e.target.value)}
-        >
-            <option value="">Default order</option>
-            <option value="price">Price: Low to High</option>
-            <option value="-price">Price: High to Low</option>
-        </select>
-
+        <ProductFilters
+    search={search}
+    onSearchChange={setSearch}
+    sort={sort}
+    onSortChange={setSort}
+/>
             
 
         <CategoryList
