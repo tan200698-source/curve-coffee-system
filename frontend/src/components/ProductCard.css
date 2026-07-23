@@ -1,0 +1,31 @@
+.product-card {
+    border: 1px solid #ddd;
+    border-radius: 12px;
+    padding: 20px;
+    margin-bottom: 20px;
+    background: white;
+}
+
+.product-card h3 {
+    margin: 0;
+}
+
+.product-category {
+    color: gray;
+    margin: 10px 0;
+}
+
+.product-price {
+    font-weight: bold;
+    margin: 15px 0;
+}
+
+.variant-list {
+    margin-top: 15px;
+}
+
+.variant-item {
+    display: flex;
+    justify-content: space-between;
+    padding: 6px 0;
+}

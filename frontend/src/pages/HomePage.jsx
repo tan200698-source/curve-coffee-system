@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import api from "../services/api";
+import "./HomePage.css";
 
 
 import StoreHeader from "../components/StoreHeader";
@@ -40,6 +41,7 @@ function HomePage() {
                 ]);
 
             setStore(storeResponse.data);
+            console.log(storeResponse.data);
             setCategories(categoriesResponse.data);
         } catch (error) {
             console.error("Store data error:", error);
@@ -123,35 +125,38 @@ useEffect(() => {
     if (!store) {
         return <h1>Loading...</h1>;
     }
-    return (
 
-        
-    <main>
+
+    return (
+    <main className="home-page">
         <StoreHeader store={store} />
 
         <ProductFilters
-    search={search}
-    onSearchChange={setSearch}
-    sort={sort}
-    onSortChange={setSort}
-/>
-            
-
-        <CategoryList
-        
-             categories={categories}
-             selectedCategory={selectedCategory}
-             onSelectCategory={setSelectedCategory}
+            search={search}
+            onSearchChange={setSearch}
+            sort={sort}
+            onSortChange={setSort}
         />
 
-        <section>
+        <CategoryList
+            categories={categories}
+            selectedCategory={selectedCategory}
+            onSelectCategory={setSelectedCategory}
+        />
+
+        <section className="menu-section">
             <h2>Our Menu</h2>
+
             {isLoadingProducts ? (
-                <p>Loading menu...</p>
+                <p className="menu-message">
+                    Loading menu...
+                </p>
             ) : products.length === 0 ? (
-                <p>No menu items found.</p>
+                <p className="menu-message">
+                    No menu items found.
+                </p>
             ) : (
-                <div>
+                <div className="product-grid">
                     {products.map((product) => (
                         <ProductCard
                             key={product.id}
@@ -163,6 +168,7 @@ useEffect(() => {
         </section>
     </main>
 );
+
 
 }
 

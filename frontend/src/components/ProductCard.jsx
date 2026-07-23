@@ -1,16 +1,27 @@
+import "./ProductCard.css";
+
 function ProductCard({ product }) {
     return (
-        <article>
+        <article className="product-card">
             <h3>{product.name}</h3>
 
-            <p>{product.category}</p>
+            <p className="product-category">
+                {product.category}
+            </p>
 
-            <p>Starting from ฿{product.min_price}</p>
+            <p className="product-price">
+                Starting from ฿{product.min_price}
+            </p>
 
-            <ul>
+            <ul className="variant-list">
                 {product.variants.map((variant) => (
-                    <li key={variant.id}>
-                        {variant.name} — ฿{variant.price}
+                    <li
+                        key={variant.id}
+                        className="variant-item"
+                    >
+                        <span>{variant.name}</span>
+
+                        <span>฿{variant.price}</span>
                     </li>
                 ))}
             </ul>
